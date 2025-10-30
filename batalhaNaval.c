@@ -1,9 +1,11 @@
 #include <stdio.h>
 
-#define TAM 10      // Tamanho fixo do tabuleiro (10x10)
-#define TAM_NAVIO 3 // Tamanho fixo dos navios (3 posições)
+#define TAM 10        // Tamanho do tabuleiro (10x10)
+#define TAM_NAVIO 3   // Cada navio ocupa 3 posições
+#define NAVIO 3       // Valor usado para marcar partes do navio
 
-// Função para inicializar o tabuleiro com 0 (representando água)
+// Inicializa o tabuleiro preenchendo todas as posições com 0
+
 void inicializarTabuleiro(int tabuleiro[TAM][TAM]) {
     for (int i = 0; i < TAM; i++) {
         for (int j = 0; j < TAM; j++) {
@@ -12,82 +14,134 @@ void inicializarTabuleiro(int tabuleiro[TAM][TAM]) {
     }
 }
 
-// Função para exibir o tabuleiro no console
+// Exibe o tabuleiro com 0 (água) e 3 (navio)
+
 void exibirTabuleiro(int tabuleiro[TAM][TAM]) {
     printf("\n=== TABULEIRO DE BATALHA NAVAL ===\n\n");
     for (int i = 0; i < TAM; i++) {
         for (int j = 0; j < TAM; j++) {
-            printf("%d ", tabuleiro[i][j]); // Espaço entre colunas para melhor visualização
+            printf("%d ", tabuleiro[i][j]);
         }
         printf("\n");
     }
     printf("\n");
 }
 
-// Função para posicionar um navio horizontalmente
-int posicionarNavioHorizontal(int tabuleiro[TAM][TAM], int linha, int colunaInicial) {
-    // Verifica se o navio cabe dentro dos limites
+
+// Verifica se a posição está livre e dentro do tabuleiro
+
+int posicaoLivre(int tabuleiro[TAM][TAM], int linha, int coluna) {
+    if (linha < 0 linha >= TAM coluna < 0 coluna >= TAM)
+    
+    return 0; 
+    
+    if (tabuleiro[linha][coluna] != 0)
+    
+    return 0; 
+    
+    return 1;
+}
+
+// Posiciona um navio horizontalmente
+
+int posicionarHorizontal(int tabuleiro[TAM][TAM], int linha, int colunaInicial) {
     if (colunaInicial + TAM_NAVIO > TAM)
-        return 0; // Falha no posicionamento
+    
+    return 0;
 
-    // Verifica se há sobreposição
-    for (int i = 0; i < TAM_NAVIO; i++) {
-        if (tabuleiro[linha][colunaInicial + i] != 0)
-            return 0;
-    }
+    for (int i = 0; i < TAM_NAVIO; i++)
+        if (posicaoLivre(tabuleiro, linha, colunaInicial + i))
+        
+    return 0; 
 
-    // Posiciona o navio (marca com 3)
-    for (int i = 0; i < TAM_NAVIO; i++) {
-        tabuleiro[linha][colunaInicial + i] = 3;
-    }
+    for (int i = 0; i < TAM_NAVIO; i++)
+        tabuleiro[linha][colunaInicial + i] = NAVIO;
 
-    return 1; // Sucesso
+    return 1;
 }
 
-// Função para posicionar um navio verticalmente
-int posicionarNavioVertical(int tabuleiro[TAM][TAM], int linhaInicial, int coluna) {
-    // Verifica se o navio cabe dentro dos limites
+
+// Posiciona um navio verticalmente
+
+int posicionarVertical(int tabuleiro[TAM][TAM], int linhaInicial, int coluna) {
     if (linhaInicial + TAM_NAVIO > TAM)
-        return 0;
+    
+    return 0; 
+    
+    for (int i = 0; i < TAM_NAVIO; i++)
+        if (posicaoLivre(tabuleiro, linhaInicial + i, coluna))
+        
+    return 0;
 
-    // Verifica se há sobreposição
-    for (int i = 0; i < TAM_NAVIO; i++) {
-        if (tabuleiro[linhaInicial + i][coluna] != 0)
-            return 0;
-    }
+    for (int i = 0; i < TAM_NAVIO; i++)
+        tabuleiro[linhaInicial + i][coluna] = NAVIO;
 
-    // Posiciona o navio (marca com 3)
-    for (int i = 0; i < TAM_NAVIO; i++) {
-        tabuleiro[linhaInicial + i][coluna] = 3;
-    }
-
-    return 1; // Sucesso
+    return 1;
 }
+
+
+// Posiciona um navio na diagonal principal 
+
+int posicionarDiagonalPrincipal(int tabuleiro[TAM][TAM], int linhaInicial, int colunaInicial) {
+    if (linhaInicial + TAM_NAVIO > TAM || colunaInicial + TAM_NAVIO > TAM)
+    
+    return 0; 
+
+    for (int i = 0; i < TAM_NAVIO; i++)
+        if (posicaoLivre(tabuleiro, linhaInicial + i, colunaInicial + i))
+            
+    return 0;
+
+    for (int i = 0; i < TAM_NAVIO; i++)
+        tabuleiro[linhaInicial + i][colunaInicial + i] = NAVIO;
+
+    return 1;
+}
+
+// Posiciona um navio na diagonal secundária
+
+int posicionarDiagonalSecundaria(int tabuleiro[TAM][TAM], int linhaInicial, int colunaInicial) {
+    if (linhaInicial + TAM_NAVIO > TAM || colunaInicial - (TAM_NAVIO - 1) < 0)
+        
+    return 0; 
+
+    for (int i = 0; i < TAM_NAVIO; i++)
+        if (posicaoLivre(tabuleiro, linhaInicial + i, colunaInicial - i))
+            
+    return 0;
+
+    for (int i = 0; i < TAM_NAVIO; i++)
+        tabuleiro[linhaInicial + i][colunaInicial - i] = NAVIO;
+
+    return 1;
+}
+
+// Função principal
 
 int main() {
     int tabuleiro[TAM][TAM];
-
-    // Inicializa o tabuleiro
     inicializarTabuleiro(tabuleiro);
 
-    // Coordenadas iniciais dos navios
-    int linhaHorizontal = 2; // Linha do navio horizontal
-    int colunaHorizontal = 4; // Coluna inicial do navio horizontal
-    int linhaVertical = 5; // Linha inicial do navio vertical
-    int colunaVertical = 1; // Coluna do navio vertical
+    // ==== Posiciona os 4 navios ====
+    // 1 horizontal, 1 vertical, 2 diagonais
 
-    // Posiciona os navios
-    if (!posicionarNavioHorizontal(tabuleiro, linhaHorizontal, colunaHorizontal)) {
-        printf("Erro ao posicionar o navio horizontal!\n");
-        return 1;
-    }
+    // Navio horizontal em (linha=1, coluna inicial=2)
+    if (posicionarHorizontal(tabuleiro, 1, 2))
+        printf("Erro ao posicionar navio horizontal!\n");
 
-    if (!posicionarNavioVertical(tabuleiro, linhaVertical, colunaVertical)) {
-        printf("Erro ao posicionar o navio vertical!\n");
-        return 1;
-    }
+    // Navio vertical em (linha inicial=5, coluna=6)
+    if (posicionarVertical(tabuleiro, 5, 6))
+        printf("Erro ao posicionar navio vertical!\n");
 
-    // Exibe o tabuleiro final
+    // Navio diagonal principal começando em (linha=3, coluna=3)
+    if (posicionarDiagonalPrincipal(tabuleiro, 3, 3))
+        printf("Erro ao posicionar navio diagonal principal!\n");
+
+    // Navio diagonal secundária começando em (linha=0, coluna=9)
+    if (posicionarDiagonalSecundaria(tabuleiro, 0, 9))
+        printf("Erro ao posicionar navio diagonal secundaria!\n");
+
+    // ==== Exibe o resultado final ====
     exibirTabuleiro(tabuleiro);
 
     return 0;
